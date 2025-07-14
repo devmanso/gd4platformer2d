@@ -1,0 +1,30 @@
+[gd_scene load_steps=4 format=3 uid="uid://w7ry5jdvj4h0"]
+
+[ext_resource type="PackedScene" uid="uid://dmdpuesnkcjqx" path="res://world/block.tscn" id="1_6lucv"]
+[ext_resource type="PackedScene" uid="uid://bhu2cfvo5qya1" path="res://player/player.tscn" id="2_o4sd4"]
+[ext_resource type="Script" path="res://world/water.gd" id="3_oa3vc"]
+
+[node name="World" type="Node2D"]
+
+[node name="Water" type="ColorRect" parent="."]
+offset_left = -3216.0
+offset_top = 640.0
+offset_right = 7120.0
+offset_bottom = 9072.0
+color = Color(0.188235, 0.32549, 1, 1)
+script = ExtResource("3_oa3vc")
+rise_speed = 100.0
+
+[node name="block" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(560, 576)
+scale = Vector2(10, 1)
+
+[node name="block2" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(216, 416)
+
+[node name="block3" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(536, 312)
+rotation = -0.696744
+
+[node name="Player" parent="." instance=ExtResource("2_o4sd4")]
+position = Vector2(352, 424)

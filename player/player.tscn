@@ -1,0 +1,64 @@
+[gd_scene load_steps=7 format=3 uid="uid://bhu2cfvo5qya1"]
+
+[ext_resource type="Script" path="res://player/player.gd" id="1_n7sqs"]
+[ext_resource type="Texture2D" uid="uid://dteyh3t3y2djh" path="res://icon.svg" id="2_k77o2"]
+[ext_resource type="PackedScene" uid="uid://bvnw7uiv8ynbw" path="res://player/PlayerCamera.tscn" id="3_uq8j8"]
+[ext_resource type="Texture2D" uid="uid://c3oyrg7dq5p78" path="res://player/bubble.png" id="4_ca56c"]
+[ext_resource type="PackedScene" uid="uid://dy4ks821tkfro" path="res://player/death_screen.tscn" id="4_f7mkn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l3v5m"]
+size = Vector2(128, 128)
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_n7sqs")
+allow_restarts = true
+
+[node name="Sprite" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_k77o2")
+
+[node name="Hurtbox" type="CollisionShape2D" parent="."]
+scale = Vector2(0.5, 0.5)
+shape = SubResource("RectangleShape2D_l3v5m")
+
+[node name="Camera" parent="." instance=ExtResource("3_uq8j8")]
+
+[node name="RestartButtonController" type="Node2D" parent="Camera"]
+position = Vector2(-1104, -512)
+scale = Vector2(2, 2)
+
+[node name="RestartButton" type="Button" parent="Camera/RestartButtonController"]
+offset_right = 192.0
+offset_bottom = 56.0
+theme_override_font_sizes/font_size = 50
+text = "Restart"
+
+[node name="PositionController" type="Node2D" parent="Camera"]
+position = Vector2(-320, -224)
+
+[node name="DeathScreen" parent="Camera/PositionController" instance=ExtResource("4_f7mkn")]
+metadata/_edit_use_anchors_ = true
+
+[node name="DamageTimer" type="Timer" parent="."]
+autostart = true
+
+[node name="ResetSpriteTimer" type="Timer" parent="."]
+wait_time = 1.5
+autostart = true
+
+[node name="BubbleParticle" type="CPUParticles2D" parent="."]
+amount = 5
+explosiveness = 0.58
+texture = ExtResource("4_ca56c")
+emission_shape = 1
+emission_sphere_radius = 70.0
+spread = 93.91
+gravity = Vector2(0, -200)
+
+[node name="DashTimer" type="Timer" parent="."]
+wait_time = 0.2
+
+[connection signal="pressed" from="Camera/RestartButtonController/RestartButton" to="." method="_on_restart_button_pressed"]
+[connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]
+[connection signal="timeout" from="ResetSpriteTimer" to="." method="_on_reset_sprite_timer_timeout"]
+[connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
