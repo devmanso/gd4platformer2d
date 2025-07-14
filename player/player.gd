@@ -47,6 +47,7 @@ var can_dash : bool = true
 var is_dashing : bool = false
 var colors : Array[Color] = [Color.WHITE, Color.AQUA, Color.RED, 
 Color.YELLOW, Color.HOT_PINK, Color.GREEN]
+var should_emit_dash_trail : bool = false
 
 func is_in_water() -> bool:
 	# check if water is in scenetree:
@@ -115,9 +116,11 @@ func is_facing_down() -> bool:
 
 
 func start_dash():
+	should_emit_dash_trail = true
 	can_dash = false
 	is_dashing = true
 	dash_timer.start(dash_duration)
+	dash_circle_particle.emitting = true
 	
 	var input_dir = Vector2.ZERO
 	input_dir.x = Input.get_axis("ui_left", "ui_right")
@@ -155,11 +158,13 @@ func _process(delta: float) -> void:
 	else:
 		bubble_particle.emitting = false
 	
-	if is_dashing:
-		dash_circle_particle.emitting = true
-		
-	else:
-		dash_circle_particle.emitting = false
+	## this part of the code!!!
+	#if is_dashing and !is_on_floor():
+		#dash_circle_particle.emitting = true
+	#elif !is_dashing and !is_on_floor():
+		#dash_circle_particle.emitting = true
+	#elif !is_dashing and is_on_floor():
+		#dash_circle_particle.emitting = false
 	
 	if health <= 0:
 		die()
@@ -226,6 +231,11 @@ func _physics_process(delta: float) -> void:
 			start_dash()
 		
 		move_and_slide()
+		
+		if is_on_floor():
+			should_emit_dash_trail = false
+			dash_circle_particle.emitting = false
+
 
 # signal shit should go here
 
@@ -243,17 +253,14 @@ func _on_reset_sprite_timer_timeout() -> void:
 	if !is_in_water():
 		sprite.self_modulate = regular_color
 
-
 func _on_restart_button_pressed() -> void:
 	get_tree().reload_current_scene()
-
 
 func _on_dash_timer_timeout() -> void:
 	is_dashing = false
 
-
 func _on_dash_particle_timer_timeout() -> void:
-	
-	var index = randf_range(0, colors.size())
-	
-	dash_circle_particle.self_modulate = colors[index]
+	pass
+	#var index = randf_range(0, colors.size())
+	#dash_circle_particle.position.y = randf_range(-20, 20)
+	#dash_circle_particle.self_modulate = colors[index]
