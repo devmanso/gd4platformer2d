@@ -7,6 +7,8 @@ extends CharacterBody2D
 @onready var damage_timer : Timer = $DamageTimer
 @onready var reset_sprite_timer : Timer = $ResetSpriteTimer
 @onready var dash_timer : Timer = $DashTimer
+@onready var dash_particle_timer : Timer = $DashParticleTimer
+@onready var dash_circle_particle : CPUParticles2D = $DashParticleCircle
 @onready var bubble_particle : CPUParticles2D = $BubbleParticle
 @onready var deathscreen : Control = $Camera/PositionController/DeathScreen
 # Control node's don't inherit from Node2d, so they don't have a position
@@ -43,6 +45,8 @@ var dash_duration : float = 0.2
 var dash_cooldown : float = 0.2
 var can_dash : bool = true
 var is_dashing : bool = false
+var colors : Array[Color] = [Color.WHITE, Color.AQUA, Color.RED, 
+Color.YELLOW, Color.HOT_PINK, Color.GREEN]
 
 func is_in_water() -> bool:
 	# check if water is in scenetree:
@@ -126,6 +130,7 @@ func start_dash():
 		pass
 	input_dir = input_dir.normalized()
 	velocity = input_dir * dash_speed
+	
 
 
 func _ready():
@@ -149,6 +154,12 @@ func _process(delta: float) -> void:
 		bubble_particle.emitting = true
 	else:
 		bubble_particle.emitting = false
+	
+	if is_dashing:
+		dash_circle_particle.emitting = true
+		
+	else:
+		dash_circle_particle.emitting = false
 	
 	if health <= 0:
 		die()
@@ -239,3 +250,10 @@ func _on_restart_button_pressed() -> void:
 
 func _on_dash_timer_timeout() -> void:
 	is_dashing = false
+
+
+func _on_dash_particle_timer_timeout() -> void:
+	
+	var index = randf_range(0, colors.size())
+	
+	dash_circle_particle.self_modulate = colors[index]

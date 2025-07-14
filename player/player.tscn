@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://bhu2cfvo5qya1"]
+[gd_scene load_steps=8 format=3 uid="uid://bhu2cfvo5qya1"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_n7sqs"]
 [ext_resource type="Texture2D" uid="uid://dteyh3t3y2djh" path="res://icon.svg" id="2_k77o2"]
 [ext_resource type="PackedScene" uid="uid://bvnw7uiv8ynbw" path="res://player/PlayerCamera.tscn" id="3_uq8j8"]
 [ext_resource type="Texture2D" uid="uid://c3oyrg7dq5p78" path="res://player/bubble.png" id="4_ca56c"]
 [ext_resource type="PackedScene" uid="uid://dy4ks821tkfro" path="res://player/death_screen.tscn" id="4_f7mkn"]
+[ext_resource type="Texture2D" uid="uid://d53odh3l1h6f" path="res://player/dash_effect_circle.png" id="6_13j4g"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l3v5m"]
 size = Vector2(128, 128)
@@ -58,7 +59,19 @@ gravity = Vector2(0, -200)
 [node name="DashTimer" type="Timer" parent="."]
 wait_time = 0.2
 
+[node name="DashParticleTimer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
+
+[node name="DashParticleCircle" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 15
+lifetime = 0.4
+texture = ExtResource("6_13j4g")
+gravity = Vector2(0, 0)
+
 [connection signal="pressed" from="Camera/RestartButtonController/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]
 [connection signal="timeout" from="ResetSpriteTimer" to="." method="_on_reset_sprite_timer_timeout"]
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="timeout" from="DashParticleTimer" to="." method="_on_dash_particle_timer_timeout"]
