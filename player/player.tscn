@@ -1,13 +1,19 @@
-[gd_scene load_steps=7 format=3 uid="uid://bhu2cfvo5qya1"]
+[gd_scene load_steps=9 format=3 uid="uid://bhu2cfvo5qya1"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_n7sqs"]
 [ext_resource type="Texture2D" uid="uid://dteyh3t3y2djh" path="res://icon.svg" id="2_k77o2"]
 [ext_resource type="PackedScene" uid="uid://bvnw7uiv8ynbw" path="res://player/PlayerCamera.tscn" id="3_uq8j8"]
 [ext_resource type="Texture2D" uid="uid://c3oyrg7dq5p78" path="res://player/bubble.png" id="4_ca56c"]
 [ext_resource type="PackedScene" uid="uid://dy4ks821tkfro" path="res://player/death_screen.tscn" id="4_f7mkn"]
+[ext_resource type="Texture2D" uid="uid://cti7pikaotqon" path="res://player/greystar.png" id="6_jut04"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l3v5m"]
 size = Vector2(128, 128)
+
+[sub_resource type="Gradient" id="Gradient_nh1bg"]
+offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
+colors = PackedColorArray(0.180392, 0.843137, 0.282353, 1, 0.12549, 0.701961, 0.952941, 1, 0.964706, 0.619608, 0.0352941, 1, 1, 0.458824, 0.658824, 1, 0.784314, 0.2, 0.45098, 1, 1, 1, 1, 1)
+metadata/_snap_enabled = true
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_n7sqs")
@@ -58,7 +64,23 @@ gravity = Vector2(0, -200)
 [node name="DashTimer" type="Timer" parent="."]
 wait_time = 0.2
 
+[node name="DashParticleTimer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
+
+[node name="DashParticle" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 15
+texture = ExtResource("6_jut04")
+emission_shape = 1
+emission_sphere_radius = 50.0
+gravity = Vector2(0, 0)
+scale_amount_min = 2.0
+scale_amount_max = 2.0
+color_ramp = SubResource("Gradient_nh1bg")
+
 [connection signal="pressed" from="Camera/RestartButtonController/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]
 [connection signal="timeout" from="ResetSpriteTimer" to="." method="_on_reset_sprite_timer_timeout"]
 [connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="timeout" from="DashParticleTimer" to="." method="_on_dash_particle_timer_timeout"]
