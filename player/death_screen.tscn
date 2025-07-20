@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://dy4ks821tkfro"]
+[gd_scene load_steps=2 format=3 uid="uid://dy4ks821tkfro"]
+
+[ext_resource type="Script" path="res://player/death_screen.gd" id="1_vamxm"]
 
 [node name="DeathScreen" type="Control"]
 layout_mode = 3
@@ -7,12 +9,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_vamxm")
 
-[node name="RichTextLabel" type="RichTextLabel" parent="."]
+[node name="DeathMessage" type="RichTextLabel" parent="."]
 layout_mode = 0
 offset_left = -8.0
 offset_top = -8.0
 offset_right = 816.0
 offset_bottom = 208.0
 theme_override_font_sizes/normal_font_size = 100
-text = "You are dead!!!"
+text = "Game Over!"

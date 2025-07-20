@@ -90,6 +90,8 @@ func get_health() -> int:
 
 #TODO: implement other ui and buttons for later
 # might not even need this function, could use Curve's instead?
+# OR: place each menu option farther away from each other, and have slide-in
+# at the same pace, such that they will all come in at different times
 func is_menu_option_in_position(menu_option : String) -> bool:
 	
 	if menu_option == "death":
