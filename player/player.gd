@@ -8,7 +8,7 @@ extends CharacterBody2D
 @onready var reset_sprite_timer : Timer = $ResetSpriteTimer
 @onready var dash_timer : Timer = $DashTimer
 @onready var dash_particle_timer : Timer = $DashParticleTimer
-@onready var dash_circle_particle : CPUParticles2D = $DashParticleCircle
+@onready var dash_particle : CPUParticles2D = $DashParticle
 @onready var bubble_particle : CPUParticles2D = $BubbleParticle
 @onready var deathscreen : Control = $Camera/PositionController/DeathScreen
 # Control node's don't inherit from Node2d, so they don't have a position
@@ -21,6 +21,9 @@ extends CharacterBody2D
 @export var health : float = 100.0
 @export var hurt_color : Color = Color(1, 0, 0, 1)
 @export var allow_restarts : bool = false
+@export var colors : Array[Color] = [Color("#FF2DD1"), Color("4DFFBE"), 
+Color.WHITE, Color("#6FE6FC"), Color("#FFFA8D"), Color("#FDB7EA"), 
+Color("#FFC785"), Color("#A294F9")]
 @export_range(0.0, 1.0) var acceleration : float = 0.25
 @export_range(0.0, 1.0) var friction : float = 0.1
 
@@ -45,8 +48,6 @@ var dash_duration : float = 0.2
 var dash_cooldown : float = 0.2
 var can_dash : bool = true
 var is_dashing : bool = false
-var colors : Array[Color] = [Color.WHITE, Color.AQUA, Color.RED, 
-Color.YELLOW, Color.HOT_PINK, Color.GREEN]
 var should_emit_dash_trail : bool = false
 
 func is_in_water() -> bool:
@@ -63,13 +64,13 @@ func is_in_water() -> bool:
 func get_speed() -> float:
 	return SPEED
 
-func set_speed(speed : float):
+func set_speed(speed : float) -> void:
 	SPEED = clamp(speed, 100, 800)
 
 func get_jump_velocity() -> float:
 	return JUMP_VELOCITY
 
-func set_jump_velocity(jump_velocity : float):
+func set_jump_velocity(jump_velocity : float) -> void:
 	if jump_velocity > 0:
 		jump_velocity *= -1
 	JUMP_VELOCITY = clamp(jump_velocity, 0, -1200)
@@ -77,11 +78,11 @@ func set_jump_velocity(jump_velocity : float):
 func get_current_powerup() -> String:
 	return current_powerup
 
-func give_powerup(powerup : String):
+func give_powerup(powerup : String) -> void:
 	current_powerup = powerup
 
 # don't use this to kill the player, use die() instead
-func set_health(value : int):
+func set_health(value : int) -> void:
 	health = clamp(value, 0, 100)
 
 func get_health() -> int:
@@ -98,7 +99,7 @@ func is_menu_option_in_position(menu_option : String) -> bool:
 	return false
 
 #TODO: implement restart and other functionality later
-func die():
+func die() -> void:
 	camera.die()
 	deathscreen.show()
 	deathscreen_slidein = true
@@ -114,13 +115,27 @@ func get_direction() -> String:
 func is_facing_down() -> bool:
 	return facing_down
 
+func rainbow() -> void:
+	var rainbow_time := 0.5
+	var step_time := rainbow_time / colors.size()
+	for i in range(colors.size()):
+		var color = colors[i]
+		get_tree().create_timer(i * step_time).timeout.connect(
+			func():
+				sprite.self_modulate = color
+		)
+	# Reset to regular after rainbow finishes
+	get_tree().create_timer(rainbow_time).timeout.connect(
+		func():
+		sprite.self_modulate = regular_color
+	)
 
-func start_dash():
+func start_dash() -> void:
 	should_emit_dash_trail = true
 	can_dash = false
 	is_dashing = true
 	dash_timer.start(dash_duration)
-	dash_circle_particle.emitting = true
+	dash_particle.emitting = true
 	
 	var input_dir = Vector2.ZERO
 	input_dir.x = Input.get_axis("ui_left", "ui_right")
@@ -133,10 +148,10 @@ func start_dash():
 		pass
 	input_dir = input_dir.normalized()
 	velocity = input_dir * dash_speed
-	
+	rainbow()
+	camera.start_shake(3)
 
-
-func _ready():
+func _ready() -> void:
 	bubble_particle.emitting = false
 	# set offscreen then hide, when the player dies, we'll
 	# slide it back into view (where position.x = 0), and show it
@@ -157,14 +172,6 @@ func _process(delta: float) -> void:
 		bubble_particle.emitting = true
 	else:
 		bubble_particle.emitting = false
-	
-	## this part of the code!!!
-	#if is_dashing and !is_on_floor():
-		#dash_circle_particle.emitting = true
-	#elif !is_dashing and !is_on_floor():
-		#dash_circle_particle.emitting = true
-	#elif !is_dashing and is_on_floor():
-		#dash_circle_particle.emitting = false
 	
 	if health <= 0:
 		die()
@@ -234,7 +241,7 @@ func _physics_process(delta: float) -> void:
 		
 		if is_on_floor():
 			should_emit_dash_trail = false
-			dash_circle_particle.emitting = false
+			dash_particle.emitting = false
 
 
 # signal shit should go here

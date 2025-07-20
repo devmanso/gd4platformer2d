@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bvnw7uiv8ynbw" path="res://player/PlayerCamera.tscn" id="3_uq8j8"]
 [ext_resource type="Texture2D" uid="uid://c3oyrg7dq5p78" path="res://player/bubble.png" id="4_ca56c"]
 [ext_resource type="PackedScene" uid="uid://dy4ks821tkfro" path="res://player/death_screen.tscn" id="4_f7mkn"]
-[ext_resource type="Texture2D" uid="uid://dqmy0hprmxar7" path="res://player/dash_effect_x.png" id="6_ta3sp"]
+[ext_resource type="Texture2D" uid="uid://cti7pikaotqon" path="res://player/greystar.png" id="6_jut04"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l3v5m"]
 size = Vector2(128, 128)
@@ -68,13 +68,15 @@ wait_time = 0.2
 wait_time = 0.1
 autostart = true
 
-[node name="DashParticleCircle" type="CPUParticles2D" parent="."]
+[node name="DashParticle" type="CPUParticles2D" parent="."]
 emitting = false
-amount = 50
-texture = ExtResource("6_ta3sp")
+amount = 15
+texture = ExtResource("6_jut04")
 emission_shape = 1
 emission_sphere_radius = 50.0
 gravity = Vector2(0, 0)
+scale_amount_min = 2.0
+scale_amount_max = 2.0
 color_ramp = SubResource("Gradient_nh1bg")
 
 [connection signal="pressed" from="Camera/RestartButtonController/RestartButton" to="." method="_on_restart_button_pressed"]
