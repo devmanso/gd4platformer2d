@@ -28,3 +28,4 @@ rotation = -0.696744
 
 [node name="Player" parent="." instance=ExtResource("2_o4sd4")]
 position = Vector2(352, 424)
+health = 1.0

@@ -102,9 +102,12 @@ func is_menu_option_in_position(menu_option : String) -> bool:
 
 #TODO: implement restart and other functionality later
 func die() -> void:
+	deathscreen.choose_random_game_over_text()
 	camera.die()
 	deathscreen.show()
 	deathscreen_slidein = true
+	dash_particle.emitting = false
+	bubble_particle.emitting = false
 
 func get_direction() -> String:
 	if current_direction < 0:
@@ -245,7 +248,6 @@ func _physics_process(delta: float) -> void:
 			should_emit_dash_trail = false
 			dash_particle.emitting = false
 
-
 # signal shit should go here
 
 func _on_damage_timer_timeout() -> void:
@@ -254,9 +256,6 @@ func _on_damage_timer_timeout() -> void:
 		sprite.self_modulate = hurt_color
 		if get_health() != 0:
 			camera.start_shake(5)
-	
-	print("Player HP: ", health)
-
 
 func _on_reset_sprite_timer_timeout() -> void:
 	if !is_in_water():
