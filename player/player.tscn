@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://bhu2cfvo5qya1"]
+[gd_scene load_steps=10 format=3 uid="uid://bhu2cfvo5qya1"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_n7sqs"]
 [ext_resource type="Texture2D" uid="uid://dteyh3t3y2djh" path="res://icon.svg" id="2_k77o2"]
+[ext_resource type="PackedScene" uid="uid://dj3a7f4hediaq" path="res://player/cursor.tscn" id="2_wxpvy"]
 [ext_resource type="PackedScene" uid="uid://bvnw7uiv8ynbw" path="res://player/PlayerCamera.tscn" id="3_uq8j8"]
 [ext_resource type="Texture2D" uid="uid://c3oyrg7dq5p78" path="res://player/bubble.png" id="4_ca56c"]
 [ext_resource type="PackedScene" uid="uid://dy4ks821tkfro" path="res://player/death_screen.tscn" id="4_f7mkn"]
@@ -78,6 +79,8 @@ gravity = Vector2(0, 0)
 scale_amount_min = 2.0
 scale_amount_max = 2.0
 color_ramp = SubResource("Gradient_nh1bg")
+
+[node name="Cursor" parent="." instance=ExtResource("2_wxpvy")]
 
 [connection signal="pressed" from="Camera/RestartButtonController/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]

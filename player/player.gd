@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 @onready var water : ColorRect = get_parent().get_node("Water")
+@onready var cursor : Node2D = $Cursor
 @onready var camera : Camera2D = $Camera
 @onready var hurtbox : CollisionShape2D = $Hurtbox
 @onready var sprite : Sprite2D = $Sprite
@@ -26,6 +27,8 @@ Color.WHITE, Color("#6FE6FC"), Color("#FFFA8D"), Color("#FDB7EA"),
 Color("#FFC785"), Color("#A294F9")]
 @export_range(0.0, 1.0) var acceleration : float = 0.25
 @export_range(0.0, 1.0) var friction : float = 0.1
+@export_range(200.0, 1600.0) var joystick_speed : float = 1200
+@export_range(0.1, 0.5) var deadzone : float = 0.1
 
 var death_message_target_xposition : float = -320.0
 var menu_button_target_xpositions : float = -1104.0
@@ -49,6 +52,7 @@ var dash_cooldown : float = 0.2
 var can_dash : bool = true
 var is_dashing : bool = false
 var should_emit_dash_trail : bool = false
+var dead : bool = false
 
 func is_in_water() -> bool:
 	# check if water is in scenetree:
@@ -108,6 +112,7 @@ func die() -> void:
 	deathscreen_slidein = true
 	dash_particle.emitting = false
 	bubble_particle.emitting = false
+	dead = true
 
 func get_direction() -> String:
 	if current_direction < 0:
@@ -163,8 +168,32 @@ func _ready() -> void:
 	deathscreen_position.position.x = -3000
 	restart_button_position.position.x = -4000
 	deathscreen.hide()
+	cursor.hide()
+
 
 func _process(delta: float) -> void:
+	
+	if !Input.is_action_pressed("ui_cancel"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
+	if Input.is_action_pressed("look") or dead:
+		cursor.show()
+	else:
+		cursor.hide()
+	
+	var joystick_input = Vector2(
+		Input.get_joy_axis(0, JOY_AXIS_RIGHT_X),
+		Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
+	)
+	
+	if joystick_input.length() > deadzone:
+		cursor.set_cursor_position(cursor.get_position() + joystick_input * joystick_speed * delta)
+		camera.set_target_position(cursor.position)
+	else:
+		cursor.set_cursor_position(get_local_mouse_position())
+		camera.set_target_position(cursor.position)
 	
 	randomize()
 	
