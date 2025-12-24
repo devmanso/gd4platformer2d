@@ -53,6 +53,7 @@ var can_dash : bool = true
 var is_dashing : bool = false
 var should_emit_dash_trail : bool = false
 var dead : bool = false
+var show_cursor : bool = false
 
 func is_in_water() -> bool:
 	# check if water is in scenetree:
@@ -162,6 +163,7 @@ func start_dash() -> void:
 	camera.start_shake(3)
 
 func _ready() -> void:
+	randomize()
 	bubble_particle.emitting = false
 	# set offscreen then hide, when the player dies, we'll
 	# slide it back into view (where position.x = 0), and show it
@@ -173,15 +175,13 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	
-	if !Input.is_action_pressed("ui_cancel"):
-		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-	else:
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if Input.is_action_just_pressed("ui_cancel"):
+		show_cursor = !show_cursor
 	
-	if Input.is_action_pressed("look") or dead:
-		cursor.show()
+	if show_cursor or dead:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	else:
-		cursor.hide()
+		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 	
 	var joystick_input = Vector2(
 		Input.get_joy_axis(0, JOY_AXIS_RIGHT_X),
@@ -194,8 +194,6 @@ func _process(delta: float) -> void:
 	else:
 		cursor.set_cursor_position(get_local_mouse_position())
 		camera.set_target_position(cursor.position)
-	
-	randomize()
 	
 	# for debug purposes! allow_restarts should be false for builds
 	# or finished levels
@@ -219,7 +217,6 @@ func _process(delta: float) -> void:
 			restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 10 * delta)
 
 func _physics_process(delta: float) -> void:
-	randomize()
 	
 	if get_health() == 0:
 		can_move = false

@@ -10,8 +10,10 @@ var is_dead: bool = false
 func set_target_position(target_pos : Vector2) -> void:
 	target_position = target_pos
 
-func _process(delta):
+func _ready() -> void:
 	randomize()
+
+func _process(delta):
 	if shake_strength > 0:
 		offset = Vector2(
 			randf_range(-1.0, 1.0),

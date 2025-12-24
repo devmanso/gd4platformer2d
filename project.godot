@@ -18,6 +18,11 @@ config/icon="res://icon.svg"
 [display]
 
 window/stretch/mode="viewport"
+mouse_cursor/custom_image="res://PixelCursors/astro_arrow.png"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/ridiculous_coding/plugin.cfg")
 
 [input]
 
