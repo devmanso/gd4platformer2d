@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8lvpp6j5aq44"]
+
+[ext_resource type="Script" path="res://world/main_menu.gd" id="1_rnj53"]
+
+[node name="MainMenu" type="Node2D"]
+script = ExtResource("1_rnj53")
+
+[node name="PlayButtonPositionController" type="Node2D" parent="."]
+position = Vector2(936, 40)
+
+[node name="Play" type="Button" parent="PlayButtonPositionController"]
+offset_left = -88.0
+offset_top = -32.0
+offset_right = 88.0
+offset_bottom = 48.0
+text = "Play"
+
+[connection signal="pressed" from="PlayButtonPositionController/Play" to="." method="_on_play_pressed"]

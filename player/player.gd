@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 @onready var water : ColorRect = get_parent().get_node("Water")
+@onready var cursor : Node2D = $Cursor
 @onready var camera : Camera2D = $Camera
 @onready var hurtbox : CollisionShape2D = $Hurtbox
 @onready var sprite : Sprite2D = $Sprite
@@ -17,6 +18,7 @@ extends CharacterBody2D
 # through that instead. Same goes for all of the other UI element stuff
 @onready var deathscreen_position : Node2D = $Camera/PositionController
 @onready var restart_button_position : Node2D = $Camera/RestartButtonController
+@onready var restart_button : Button = $Camera/RestartButtonController/RestartButton
 
 @export var health : float = 100.0
 @export var hurt_color : Color = Color(1, 0, 0, 1)
@@ -26,6 +28,8 @@ Color.WHITE, Color("#6FE6FC"), Color("#FFFA8D"), Color("#FDB7EA"),
 Color("#FFC785"), Color("#A294F9")]
 @export_range(0.0, 1.0) var acceleration : float = 0.25
 @export_range(0.0, 1.0) var friction : float = 0.1
+@export_range(200.0, 1600.0) var joystick_speed : float = 1200
+@export_range(0.1, 0.5) var deadzone : float = 0.1
 
 var death_message_target_xposition : float = -320.0
 var menu_button_target_xpositions : float = -1104.0
@@ -43,12 +47,14 @@ var player_scale : Vector2 = Vector2(0.5, 0.5)
 var player_scale_down_squash : Vector2 = Vector2(0.6, 0.4)
 var player_scale_down_squash_compressed : Vector2 = Vector2(0.7, 0.3)
 var player_scale_up_squash : Vector2 = Vector2(0.4, 0.6)
-var dash_speed : float = 1600.0
+var dash_speed : float = 1400.0
 var dash_duration : float = 0.2
 var dash_cooldown : float = 0.2
 var can_dash : bool = true
 var is_dashing : bool = false
 var should_emit_dash_trail : bool = false
+var dead : bool = false
+var show_cursor : bool = false
 
 func is_in_water() -> bool:
 	# check if water is in scenetree:
@@ -102,9 +108,13 @@ func is_menu_option_in_position(menu_option : String) -> bool:
 
 #TODO: implement restart and other functionality later
 func die() -> void:
+	deathscreen.choose_random_game_over_text()
 	camera.die()
 	deathscreen.show()
-	deathscreen_slidein = true
+	#deathscreen_slidein = true
+	dash_particle.emitting = false
+	bubble_particle.emitting = false
+	dead = true
 
 func get_direction() -> String:
 	if current_direction < 0:
@@ -154,16 +164,37 @@ func start_dash() -> void:
 	camera.start_shake(3)
 
 func _ready() -> void:
+	randomize()
 	bubble_particle.emitting = false
 	# set offscreen then hide, when the player dies, we'll
 	# slide it back into view (where position.x = 0), and show it
-	deathscreen_position.position.x = -3000
-	restart_button_position.position.x = -4000
+	#deathscreen_position.position.x = -3000
+	#restart_button_position.position.x = -4000
 	deathscreen.hide()
+	cursor.hide()
+
 
 func _process(delta: float) -> void:
 	
-	randomize()
+	if Input.is_action_just_pressed("ui_cancel"):
+		show_cursor = !show_cursor
+	
+	if show_cursor or dead:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	
+	var joystick_input = Vector2(
+		Input.get_joy_axis(0, JOY_AXIS_RIGHT_X),
+		Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
+	)
+	
+	if joystick_input.length() > deadzone:
+		cursor.set_cursor_position(cursor.get_position() + joystick_input * joystick_speed * delta)
+		camera.set_target_position(cursor.position)
+	else:
+		cursor.set_cursor_position(get_local_mouse_position())
+		camera.set_target_position(cursor.position)
 	
 	# for debug purposes! allow_restarts should be false for builds
 	# or finished levels
@@ -178,16 +209,22 @@ func _process(delta: float) -> void:
 	if health <= 0:
 		die()
 	
-	if deathscreen_slidein:
-		# t = 0.08. 5 * 0.016 (60fps) = 0.08
-		deathscreen_position.position.x = lerp(deathscreen_position.position.x, death_message_target_xposition, 5 * delta)
-		# instead of having them both slide in, I want the restart button to slide in, 1 second after the deathscreen is in position
-		#restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 5 * delta)
-		if is_menu_option_in_position("death"):
-			restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 10 * delta)
+	if dead:
+		restart_button_position.show()
+		#deathscreen_position.show()
+	else:
+		deathscreen_position.hide()
+		restart_button_position.hide()
+	
+	#if deathscreen_slidein:
+		## t = 0.08. 5 * 0.016 (60fps) = 0.08
+		#deathscreen_position.position.x = lerp(deathscreen_position.position.x, death_message_target_xposition, 5 * delta)
+		## instead of having them both slide in, I want the restart button to slide in, 1 second after the deathscreen is in position
+		##restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 5 * delta)
+		#if is_menu_option_in_position("death"):
+			#restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 10 * delta)
 
 func _physics_process(delta: float) -> void:
-	randomize()
 	
 	if get_health() == 0:
 		can_move = false
@@ -245,7 +282,6 @@ func _physics_process(delta: float) -> void:
 			should_emit_dash_trail = false
 			dash_particle.emitting = false
 
-
 # signal shit should go here
 
 func _on_damage_timer_timeout() -> void:
@@ -254,9 +290,6 @@ func _on_damage_timer_timeout() -> void:
 		sprite.self_modulate = hurt_color
 		if get_health() != 0:
 			camera.start_shake(5)
-	
-	print("Player HP: ", health)
-
 
 func _on_reset_sprite_timer_timeout() -> void:
 	if !is_in_water():
