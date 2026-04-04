@@ -44,6 +44,10 @@ text = "Restart"
 position = Vector2(-320, -224)
 
 [node name="DeathScreen" parent="Camera/PositionController" instance=ExtResource("4_f7mkn")]
+offset_left = 48.0
+offset_top = -336.0
+offset_right = 48.0
+offset_bottom = -336.0
 metadata/_edit_use_anchors_ = true
 
 [node name="DamageTimer" type="Timer" parent="."]
