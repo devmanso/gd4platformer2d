@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-@onready var water : ColorRect = get_parent().get_node("Water")
 @onready var cursor : Node2D = $Cursor
 @onready var camera : Camera2D = $Camera
 @onready var hurtbox : CollisionShape2D = $Hurtbox
@@ -12,10 +11,6 @@ extends CharacterBody2D
 @onready var dash_particle : CPUParticles2D = $DashParticle
 @onready var bubble_particle : CPUParticles2D = $BubbleParticle
 @onready var deathscreen : Control = $Camera/PositionController/DeathScreen
-# Control node's don't inherit from Node2d, so they don't have a position
-# We can get around this by making the deathscreen (a Control object)
-# a child of a deathscreen_position (A node2d) object, and control the position
-# through that instead. Same goes for all of the other UI element stuff
 @onready var deathscreen_position : Node2D = $Camera/PositionController
 @onready var restart_button_position : Node2D = $Camera/RestartButtonController
 @onready var restart_button : Button = $Camera/RestartButtonController/RestartButton
@@ -59,17 +54,6 @@ var should_emit_dash_trail : bool = false
 var dead : bool = false
 var show_cursor : bool = false
 
-func is_in_water() -> bool:
-	# check if water is in scenetree:
-	if water == null:
-		push_error("water (ColorRect) node not found in scene")
-		return false
-	elif position.y > water.get_water_level():
-			return true
-	else: 
-		return false
-		
-
 func get_speed() -> float:
 	return SPEED
 
@@ -90,31 +74,22 @@ func get_current_powerup() -> String:
 func give_powerup(powerup : String) -> void:
 	current_powerup = powerup
 
-# don't use this to kill the player, use die() instead
 func set_health(value : int) -> void:
 	health = clamp(value, 0, 100)
 
 func get_health() -> int:
 	return health
 
-#TODO: implement other ui and buttons for later
-# might not even need this function, could use Curve's instead?
-# OR: place each menu option farther away from each other, and have slide-in
-# at the same pace, such that they will all come in at different times
 func is_menu_option_in_position(menu_option : String) -> bool:
-	
 	if menu_option == "death":
 		if deathscreen_position.position.distance_to(Vector2(-320,-224)) < 5:
 			return true
-	
 	return false
 
-#TODO: implement restart and other functionality later
 func die() -> void:
 	deathscreen.choose_random_game_over_text()
 	camera.die()
 	deathscreen.show()
-	#deathscreen_slidein = true
 	dash_particle.emitting = false
 	bubble_particle.emitting = false
 	dead = true
@@ -139,7 +114,6 @@ func rainbow() -> void:
 			func():
 				sprite.self_modulate = color
 		)
-	# Reset to regular after rainbow finishes
 	get_tree().create_timer(rainbow_time).timeout.connect(
 		func():
 		sprite.self_modulate = regular_color
@@ -157,14 +131,10 @@ func start_dash() -> void:
 	input_dir.y = Input.get_axis("ui_up", "ui_down")
 	
 	if input_dir == Vector2.ZERO:
-		# Default dash direction if no input (usually forward)
 		input_dir.x = current_direction if current_direction != 0 else 1.0
 		
 	input_dir = input_dir.normalized()
-		
-	# Combine the dash speed with the platform's current speed
 	var plat_velo = get_platform_velocity()
-	
 	velocity = (input_dir * dash_speed) + (plat_velo * fling)
 	rainbow()
 	camera.start_shake(3)
@@ -172,25 +142,16 @@ func start_dash() -> void:
 func _ready() -> void:
 	randomize()
 	bubble_particle.emitting = false
-	# set offscreen then hide, when the player dies, we'll
-	# slide it back into view (where position.x = 0), and show it
-	#deathscreen_position.position.x = -3000
-	#restart_button_position.position.x = -4000
 	deathscreen.hide()
 	cursor.hide()
 
 func _process(delta: float) -> void:
-	# TODO: use a singleton script to turn debug settings on/off instead of 
-	# commenting them out or using a variable
 	fps_display.text = str(Engine.get_frames_per_second()) + " FPS"
 	
 	if Input.is_action_just_pressed("ui_cancel"):
 		show_cursor = !show_cursor
 	
-	if show_cursor or dead:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	else:
-		Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if show_cursor or dead else Input.MOUSE_MODE_HIDDEN
 	
 	var joystick_input = Vector2(
 		Input.get_joy_axis(0, JOY_AXIS_RIGHT_X),
@@ -204,57 +165,29 @@ func _process(delta: float) -> void:
 		cursor.set_cursor_position(get_local_mouse_position())
 		camera.set_target_position(cursor.position)
 	
-	# for debug purposes! allow_restarts should be false for builds
-	# or finished levels
 	if Input.is_action_pressed("restart") and allow_restarts:
 		get_tree().reload_current_scene()
-	
-	if is_in_water():
-		bubble_particle.emitting = true
-	else:
-		bubble_particle.emitting = false
 	
 	if health <= 0:
 		die()
 	
 	if dead:
 		restart_button_position.show()
-		#deathscreen_position.show()
 	else:
 		deathscreen_position.hide()
 		restart_button_position.hide()
-	
-	#if deathscreen_slidein:
-		## t = 0.08. 5 * 0.016 (60fps) = 0.08
-		#deathscreen_position.position.x = lerp(deathscreen_position.position.x, death_message_target_xposition, 5 * delta)
-		## instead of having them both slide in, I want the restart button to slide in, 1 second after the deathscreen is in position
-		##restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 5 * delta)
-		#if is_menu_option_in_position("death"):
-			#restart_button_position.position.x = lerp(restart_button_position.position.x, menu_button_target_xpositions, 10 * delta)
 
 func _physics_process(delta: float) -> void:
-	
-	if get_health() == 0:
-		can_move = false
-	else:
-		can_move = true
+	can_move = get_health() != 0
 	
 	if can_move:
-		
-		# Add the gravity.
 		if not is_on_floor():
 			velocity += get_gravity() * delta
 		
-		# Handle jump.
 		if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 			var plat_velo = get_platform_velocity()
-			# base jump
 			velocity.y = JUMP_VELOCITY 
-			
-			# This flings you forward if the platform is moving sideways
 			velocity.x += plat_velo.x
-			
-			# If the platform is moving UP, add that speed to the jump height
 			if plat_velo.y < 0:
 				velocity.y += plat_velo.y
 			facing_down = false
@@ -263,29 +196,13 @@ func _physics_process(delta: float) -> void:
 			velocity.y += DOWNFORCE * delta
 			facing_down = true
 		
-		if is_on_floor() and abs(velocity.y) < 10 and !Input.is_action_pressed("ui_down"):
-			sprite.scale = sprite.scale.lerp(player_scale, 10 * delta)
-			# scale down the hurtbox too
-			hurtbox.set_scale(player_scale)
-		elif is_on_floor() and abs(velocity.y) < 10 and Input.is_action_pressed("ui_down"):
-			sprite.scale = sprite.scale.lerp(player_scale_down_squash_compressed, 10 * delta)
-			hurtbox.set_scale(player_scale_down_squash_compressed)
-		else:
-			if velocity.y < 0:
-				sprite.scale = sprite.scale.lerp(player_scale_up_squash, 10 * delta)
-				hurtbox.set_scale(player_scale_up_squash)
-			else:
-				sprite.scale = sprite.scale.lerp(player_scale_down_squash, 10 * delta)
-				hurtbox.set_scale(player_scale_down_squash)
-		
 		var direction := Input.get_axis("ui_left", "ui_right")
 		current_direction = direction
+		
 		if direction:
-			#velocity.x = direction * SPEED
 			velocity.x = lerp(velocity.x, direction * SPEED, acceleration)
 		else:
 			velocity.x = lerp(velocity.x, 0.0, friction)
-			#velocity.x = move_toward(velocity.x, 0, SPEED)
 		
 		if is_on_floor():
 			can_dash = true
@@ -299,19 +216,6 @@ func _physics_process(delta: float) -> void:
 			should_emit_dash_trail = false
 			dash_particle.emitting = false
 
-# signal shit should go here
-
-func _on_damage_timer_timeout() -> void:
-	if is_in_water():
-		set_health(health-10)
-		sprite.self_modulate = hurt_color
-		if get_health() != 0:
-			camera.start_shake(5)
-
-func _on_reset_sprite_timer_timeout() -> void:
-	if !is_in_water():
-		sprite.self_modulate = regular_color
-
 func _on_restart_button_pressed() -> void:
 	get_tree().reload_current_scene()
 
@@ -320,6 +224,3 @@ func _on_dash_timer_timeout() -> void:
 
 func _on_dash_particle_timer_timeout() -> void:
 	pass
-	#var index = randf_range(0, colors.size())
-	#dash_circle_particle.position.y = randf_range(-20, 20)
-	#dash_circle_particle.self_modulate = colors[index]
