@@ -86,6 +86,15 @@ color_ramp = SubResource("Gradient_nh1bg")
 
 [node name="Cursor" parent="." instance=ExtResource("2_wxpvy")]
 
+[node name="DebugUIController" type="Node2D" parent="."]
+
+[node name="FPSLabel" type="RichTextLabel" parent="DebugUIController"]
+offset_left = -24.0
+offset_top = -120.0
+offset_right = 96.0
+offset_bottom = -80.0
+text = "FPS!"
+
 [connection signal="pressed" from="Camera/RestartButtonController/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="timeout" from="DamageTimer" to="." method="_on_damage_timer_timeout"]
 [connection signal="timeout" from="ResetSpriteTimer" to="." method="_on_reset_sprite_timer_timeout"]

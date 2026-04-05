@@ -19,6 +19,8 @@ extends CharacterBody2D
 @onready var deathscreen_position : Node2D = $Camera/PositionController
 @onready var restart_button_position : Node2D = $Camera/RestartButtonController
 @onready var restart_button : Button = $Camera/RestartButtonController/RestartButton
+@onready var debug_ui_controller : Node2D = $DebugUIController
+@onready var fps_display : RichTextLabel = $DebugUIController/FPSLabel
 
 @export var health : float = 100.0
 @export var hurt_color : Color = Color(1, 0, 0, 1)
@@ -175,6 +177,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# TODO: use a singleton script to turn debug settings on/off instead of 
+	# commenting them out or using a variable
+	fps_display.text = str(Engine.get_frames_per_second()) + " FPS"
 	
 	if Input.is_action_just_pressed("ui_cancel"):
 		show_cursor = !show_cursor

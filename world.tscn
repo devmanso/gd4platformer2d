@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://w7ry5jdvj4h0"]
+[gd_scene load_steps=5 format=3 uid="uid://w7ry5jdvj4h0"]
 
 [ext_resource type="PackedScene" uid="uid://dmdpuesnkcjqx" path="res://world/block.tscn" id="1_6lucv"]
 [ext_resource type="PackedScene" uid="uid://bhu2cfvo5qya1" path="res://player/player.tscn" id="2_o4sd4"]
 [ext_resource type="Script" path="res://world/water.gd" id="3_oa3vc"]
+[ext_resource type="PackedScene" uid="uid://dqv51a3d6vngn" path="res://world/moving_platforms.tscn" id="4_70hfu"]
 
 [node name="World" type="Node2D"]
 
@@ -17,6 +18,14 @@ rise_speed = 100.0
 
 [node name="block" parent="." instance=ExtResource("1_6lucv")]
 position = Vector2(560, 576)
+scale = Vector2(10, 1)
+
+[node name="block12" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(1832, 576)
+scale = Vector2(10, 1)
+
+[node name="block11" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(-720, 576)
 scale = Vector2(10, 1)
 
 [node name="block10" parent="." instance=ExtResource("1_6lucv")]
@@ -50,3 +59,7 @@ rotation = -0.696744
 
 [node name="Player" parent="." instance=ExtResource("2_o4sd4")]
 position = Vector2(352, 424)
+
+[node name="MovingPlatforms" parent="." instance=ExtResource("4_70hfu")]
+position = Vector2(-128, 344)
+duration = 0.5
