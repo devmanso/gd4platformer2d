@@ -62,4 +62,4 @@ position = Vector2(352, 424)
 
 [node name="MovingPlatforms" parent="." instance=ExtResource("4_70hfu")]
 position = Vector2(-128, 344)
-duration = 0.5
+offset = Vector2(-1000, 0)

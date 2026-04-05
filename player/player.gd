@@ -32,6 +32,7 @@ Color("#FFC785"), Color("#A294F9")]
 @export_range(0.0, 1.0) var friction : float = 0.1
 @export_range(200.0, 1600.0) var joystick_speed : float = 1200
 @export_range(0.1, 0.5) var deadzone : float = 0.1
+@export_range(1.0, 5.0) var fling : float = 1.5
 
 var death_message_target_xposition : float = -320.0
 var menu_button_target_xpositions : float = -1104.0
@@ -156,12 +157,15 @@ func start_dash() -> void:
 	input_dir.y = Input.get_axis("ui_up", "ui_down")
 	
 	if input_dir == Vector2.ZERO:
-		 # No input? Dash in facing direction, default right
-		#input_dir.x = sign(current_direction) if current_direction != 0 else 1
-		# don't do anything if not facing directions
-		pass
+		# Default dash direction if no input (usually forward)
+		input_dir.x = current_direction if current_direction != 0 else 1.0
+		
 	input_dir = input_dir.normalized()
-	velocity = input_dir * dash_speed
+		
+	# Combine the dash speed with the platform's current speed
+	var plat_velo = get_platform_velocity()
+	
+	velocity = (input_dir * dash_speed) + (plat_velo * fling)
 	rainbow()
 	camera.start_shake(3)
 
@@ -174,7 +178,6 @@ func _ready() -> void:
 	#restart_button_position.position.x = -4000
 	deathscreen.hide()
 	cursor.hide()
-
 
 func _process(delta: float) -> void:
 	# TODO: use a singleton script to turn debug settings on/off instead of 
@@ -244,7 +247,16 @@ func _physics_process(delta: float) -> void:
 		
 		# Handle jump.
 		if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-			velocity.y = JUMP_VELOCITY
+			var plat_velo = get_platform_velocity()
+			# base jump
+			velocity.y = JUMP_VELOCITY 
+			
+			# This flings you forward if the platform is moving sideways
+			velocity.x += plat_velo.x
+			
+			# If the platform is moving UP, add that speed to the jump height
+			if plat_velo.y < 0:
+				velocity.y += plat_velo.y
 			facing_down = false
 		
 		if Input.is_action_pressed("ui_down") and !is_on_floor():
