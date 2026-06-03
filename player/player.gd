@@ -17,6 +17,7 @@ extends CharacterBody2D
 @onready var debug_ui_controller : Node2D = $DebugUIController
 @onready var fps_display : RichTextLabel = $DebugUIController/FPSLabel
 
+@export var push_force : float = 50.0
 @export var health : float = 100.0
 @export var hurt_color : Color = Color(1, 0, 0, 1)
 @export var allow_restarts : bool = false
@@ -38,7 +39,7 @@ var facing_down : bool = false
 var deathscreen_slidein : bool = false
 var can_move : bool = true
 
-var SPEED : float = 300.0
+var SPEED : float = 650.0
 var JUMP_VELOCITY : float = -900.0
 var DOWNFORCE : float = 1000.0
 var player_scale : Vector2 = Vector2(0.5, 0.5)
@@ -53,6 +54,12 @@ var is_dashing : bool = false
 var should_emit_dash_trail : bool = false
 var dead : bool = false
 var show_cursor : bool = false
+var wall_slide_gravity_multiplier : float = 0.3
+var wall_jump_horizontal_force : float = 500.0
+var wall_coyote_time : float = 0.12
+var wall_coyote_timer : float = 0.0
+var last_wall_direction : float = 0.0   # -1 = left wall, 1 = right wall
+var is_wall_sliding : bool = false
 
 func get_speed() -> float:
 	return SPEED
@@ -105,6 +112,13 @@ func get_direction() -> String:
 func is_facing_down() -> bool:
 	return facing_down
 
+func get_wall_direction() -> float:
+	# Returns which wall we're touching: -1 left, 1 right, 0 none
+	if is_on_wall_only():
+		var wall_normal = get_wall_normal()
+		return -sign(wall_normal.x)   # normal points away from wall, so negate
+	return 0.0
+
 func rainbow() -> void:
 	var rainbow_time := 0.5
 	var step_time := rainbow_time / colors.size()
@@ -146,12 +160,14 @@ func _ready() -> void:
 	cursor.hide()
 
 func _process(delta: float) -> void:
+	
 	fps_display.text = str(Engine.get_frames_per_second()) + " FPS"
 	
 	if Input.is_action_just_pressed("ui_cancel"):
 		show_cursor = !show_cursor
 	
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if show_cursor or dead else Input.MOUSE_MODE_HIDDEN
+	#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if show_cursor or dead else Input.MOUSE_MODE_HIDDEN
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	var joystick_input = Vector2(
 		Input.get_joy_axis(0, JOY_AXIS_RIGHT_X),
@@ -181,20 +197,66 @@ func _physics_process(delta: float) -> void:
 	can_move = get_health() != 0
 	
 	if can_move:
-		if not is_on_floor():
-			velocity += get_gravity() * delta
+		var wall_dir := get_wall_direction()
 		
-		if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-			var plat_velo = get_platform_velocity()
-			velocity.y = JUMP_VELOCITY 
-			velocity.x += plat_velo.x
-			if plat_velo.y < 0:
-				velocity.y += plat_velo.y
-			facing_down = false
+		# Track wall coyote time — briefly remember the last wall after leaving it
+		if wall_dir != 0.0:
+			last_wall_direction = wall_dir
+			wall_coyote_timer = wall_coyote_time
+		elif wall_coyote_timer > 0:
+			wall_coyote_timer -= delta
+		
+		# Determine if we're wall sliding: airborne, pressing into a wall, moving downward
+		is_wall_sliding = (
+			not is_on_floor()
+			and (wall_dir != 0.0 or wall_coyote_timer > 0.0)
+			and velocity.y > 0
+			and Input.get_axis("ui_left", "ui_right") != 0.0
+		)
+			
+		if not is_on_floor():
+			if is_wall_sliding:
+				velocity += get_gravity() * wall_slide_gravity_multiplier * delta
+				velocity.y = min(velocity.y, 200.0)  # cap slide speed
+			else:
+				velocity += get_gravity() * delta
+			
+# Jump: floor jump or wall jump
+		if Input.is_action_just_pressed("ui_accept"):
+			if is_on_floor():
+				var plat_velo = get_platform_velocity()
+				velocity.y = JUMP_VELOCITY
+				velocity.x += plat_velo.x
+				if plat_velo.y < 0:
+					velocity.y += plat_velo.y
+				facing_down = false
+			elif is_wall_sliding or wall_coyote_timer > 0.0:
+				# Wall jump: kick away from the wall
+				velocity.y = JUMP_VELOCITY
+				velocity.x = -last_wall_direction * wall_jump_horizontal_force
+				facing_down = false
+				can_dash = true              # reward the wall jump with a fresh dash
+				wall_coyote_timer = 0.0     # consume coyote window
+				is_wall_sliding = false
 		
 		if Input.is_action_pressed("ui_down") and !is_on_floor():
 			velocity.y += DOWNFORCE * delta
 			facing_down = true
+		
+		if is_on_floor() and abs(velocity.y) < 10 and !Input.is_action_pressed("ui_down"):
+			sprite.scale = sprite.scale.lerp(player_scale, 10 * delta)
+			# scale down the hurtbox too
+			hurtbox.set_scale(player_scale)
+		elif is_on_floor() and abs(velocity.y) < 10 and Input.is_action_pressed("ui_down"):
+			sprite.scale = sprite.scale.lerp(player_scale_down_squash_compressed, 10 * delta)
+			hurtbox.set_scale(player_scale_down_squash_compressed)
+		else:
+			if velocity.y < 0:
+				sprite.scale = sprite.scale.lerp(player_scale_up_squash, 10 * delta)
+				hurtbox.set_scale(player_scale_up_squash)
+			else:
+				sprite.scale = sprite.scale.lerp(player_scale_down_squash, 10 * delta)
+				hurtbox.set_scale(player_scale_down_squash)
 		
 		var direction := Input.get_axis("ui_left", "ui_right")
 		current_direction = direction
@@ -211,6 +273,29 @@ func _physics_process(delta: float) -> void:
 			start_dash()
 		
 		move_and_slide()
+		
+		for i in get_slide_collision_count():
+			var collision = get_slide_collision(i)
+			var collider = collision.get_collider()
+			
+			# Check if the object we hit is a RigidBody2D
+			if collider is RigidBody2D:
+				# Calculate push direction (away from the collision point)
+				# Using negative normal points directly into the object
+				var push_direction : Vector2 = -collision.get_normal()
+				
+				# don't want to change push_force every frame because it will
+				# exponentially grow out of control
+				var final_push : float = push_force
+				
+				if is_dashing:
+					final_push *=3
+				
+				# Apply the impulse to the central point of the ball
+				# We multiply by push_force, and optionally factor in player speed
+				collider.apply_central_impulse(push_direction * final_push)
+				#collider.apply_central_force(-collision.get_normal() * push_force * 60.0)
+				
 		
 		if is_on_floor():
 			should_emit_dash_trail = false

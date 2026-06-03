@@ -2,27 +2,166 @@
 
 [ext_resource type="PackedScene" uid="uid://dmdpuesnkcjqx" path="res://world/block.tscn" id="1_6lucv"]
 [ext_resource type="PackedScene" uid="uid://bhu2cfvo5qya1" path="res://player/player.tscn" id="2_o4sd4"]
-[ext_resource type="Script" path="res://world/water.gd" id="3_oa3vc"]
 [ext_resource type="PackedScene" uid="uid://dqv51a3d6vngn" path="res://world/moving_platforms.tscn" id="4_70hfu"]
+[ext_resource type="PackedScene" uid="uid://jj4o30eultfj" path="res://world/ball.tscn" id="4_exqpy"]
 
 [node name="World" type="Node2D"]
 
-[node name="Water" type="ColorRect" parent="."]
-offset_left = -3216.0
-offset_top = 640.0
-offset_right = 7120.0
-offset_bottom = 9072.0
-color = Color(0.188235, 0.32549, 1, 1)
-script = ExtResource("3_oa3vc")
-rise_speed = 100.0
+[node name="Ball" parent="." instance=ExtResource("4_exqpy")]
+position = Vector2(1080, 440)
+collision_layer = 4
+collision_mask = 3
+mass = 0.5
 
 [node name="block" parent="." instance=ExtResource("1_6lucv")]
 position = Vector2(560, 576)
 scale = Vector2(10, 1)
 
 [node name="block12" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(1832, 576)
-scale = Vector2(10, 1)
+position = Vector2(1472, 560)
+rotation = -0.0610865
+scale = Vector2(4.39824, 1)
+
+[node name="block19" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(2024, 552)
+rotation = 0.0174533
+scale = Vector2(4.39824, 1)
+
+[node name="block20" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(2392, 576)
+rotation = 0.253073
+scale = Vector2(1.6734, 1)
+
+[node name="block21" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(2584, 648)
+rotation = 0.427606
+scale = Vector2(1.6734, 1)
+
+[node name="block22" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(2728, 760)
+rotation = 0.855211
+scale = Vector2(1.6734, 1)
+
+[node name="block23" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(2880, 896)
+rotation = 0.558505
+scale = Vector2(1.6734, 1)
+
+[node name="block24" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(3008, 936)
+rotation = 0.0872665
+scale = Vector2(1.6734, 1)
+
+[node name="block25" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(3208, 936)
+rotation = -0.0785398
+scale = Vector2(1.6734, 1)
+
+[node name="block26" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(3416, 912)
+rotation = -0.164061
+scale = Vector2(1.6734, 1)
+
+[node name="block27" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(3616, 864)
+rotation = -0.335103
+scale = Vector2(1.6734, 1)
+
+[node name="block28" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(3752, 808)
+rotation = -0.420624
+scale = Vector2(1.6734, 1)
+
+[node name="block29" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(3920, 768)
+rotation = -0.0872665
+scale = Vector2(1.6734, 1)
+
+[node name="block30" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(4120, 760)
+rotation = -0.0349066
+scale = Vector2(1.6734, 1)
+
+[node name="block31" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(4312, 768)
+rotation = 0.0174533
+scale = Vector2(1.6734, 1)
+
+[node name="block33" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(5136, 888)
+rotation = 0.0174533
+scale = Vector2(1.6734, 1)
+
+[node name="block40" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(5808, 832)
+rotation = -0.788435
+
+[node name="block41" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(5888, 768)
+rotation = -0.610865
+
+[node name="block42" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(5984, 712)
+rotation = -0.523599
+
+[node name="block43" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(6120, 664)
+rotation = -0.174533
+scale = Vector2(1.6734, 1)
+
+[node name="block44" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(6320, 648)
+scale = Vector2(1.6734, 1)
+
+[node name="block39" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(5512, 888)
+scale = Vector2(4.63341, 1)
+
+[node name="block32" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(4536, 776)
+scale = Vector2(1.83, 1)
+
+[node name="block38" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(4848, 776)
+scale = Vector2(1.83, 1)
+
+[node name="block45" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(4696, 776)
+rotation = 3.14159
+pass_through = true
+
+[node name="block46" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(4960, 888)
+rotation = 3.14159
+pass_through = true
+
+[node name="block13" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(56, 160)
+rotation = 1.5708
+scale = Vector2(5.5, 1)
+
+[node name="block14" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(776, 64)
+rotation = 1.5708
+scale = Vector2(4, 1)
+
+[node name="block17" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(520, 224)
+scale = Vector2(3, 0.5)
+
+[node name="block18" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(312, -88)
+scale = Vector2(3, 0.5)
+
+[node name="block16" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(616, -304)
+rotation = 0.785398
+scale = Vector2(5, 1)
+
+[node name="block15" parent="." instance=ExtResource("1_6lucv")]
+position = Vector2(216, -304)
+rotation = -0.785398
+scale = Vector2(5, 1)
 
 [node name="block11" parent="." instance=ExtResource("1_6lucv")]
 position = Vector2(-720, 576)
@@ -33,33 +172,35 @@ position = Vector2(376, 9016)
 scale = Vector2(999, 1)
 
 [node name="block2" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(216, 416)
+position = Vector2(5608, -2448)
 
 [node name="block4" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(728, 128)
+position = Vector2(5336, -2904)
 
 [node name="block5" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(1272, 32)
+position = Vector2(5880, -3000)
 
 [node name="block7" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(1496, 312)
+position = Vector2(6104, -2720)
 
 [node name="block8" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(1744, 152)
+position = Vector2(6352, -2880)
 
 [node name="block9" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(2232, 144)
+position = Vector2(6416, -2072)
 
 [node name="block6" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(1000, 128)
+position = Vector2(5608, -2904)
 
 [node name="block3" parent="." instance=ExtResource("1_6lucv")]
-position = Vector2(536, 312)
+position = Vector2(5144, -2720)
 rotation = -0.696744
+
+[node name="MovingPlatforms" parent="." instance=ExtResource("4_70hfu")]
+position = Vector2(-784, -1104)
+offset = Vector2(-1000, 0)
 
 [node name="Player" parent="." instance=ExtResource("2_o4sd4")]
 position = Vector2(352, 424)
-
-[node name="MovingPlatforms" parent="." instance=ExtResource("4_70hfu")]
-position = Vector2(-128, 344)
-offset = Vector2(-1000, 0)
+collision_layer = 2
+collision_mask = 9

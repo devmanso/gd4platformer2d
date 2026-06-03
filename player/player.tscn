@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bhu2cfvo5qya1"]
+[gd_scene load_steps=11 format=3 uid="uid://bhu2cfvo5qya1"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_n7sqs"]
 [ext_resource type="Texture2D" uid="uid://dteyh3t3y2djh" path="res://icon.svg" id="2_k77o2"]
@@ -7,6 +7,10 @@
 [ext_resource type="Texture2D" uid="uid://c3oyrg7dq5p78" path="res://player/bubble.png" id="4_ca56c"]
 [ext_resource type="PackedScene" uid="uid://dy4ks821tkfro" path="res://player/death_screen.tscn" id="4_f7mkn"]
 [ext_resource type="Texture2D" uid="uid://cti7pikaotqon" path="res://player/greystar.png" id="6_jut04"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6v2dt"]
+radius = 64.0
+height = 128.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l3v5m"]
 size = Vector2(128, 128)
@@ -26,7 +30,12 @@ texture = ExtResource("2_k77o2")
 
 [node name="Hurtbox" type="CollisionShape2D" parent="."]
 scale = Vector2(0.5, 0.5)
+shape = SubResource("CapsuleShape2D_6v2dt")
+
+[node name="Hurtbox2" type="CollisionShape2D" parent="."]
+scale = Vector2(0.5, 0.5)
 shape = SubResource("RectangleShape2D_l3v5m")
+disabled = true
 
 [node name="Camera" parent="." instance=ExtResource("3_uq8j8")]
 

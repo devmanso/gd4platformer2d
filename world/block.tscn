@@ -1,11 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://dmdpuesnkcjqx"]
+[gd_scene load_steps=4 format=3 uid="uid://dmdpuesnkcjqx"]
 
+[ext_resource type="Script" path="res://world/block.gd" id="1_fkbx1"]
 [ext_resource type="Texture2D" uid="uid://dteyh3t3y2djh" path="res://icon.svg" id="1_tuh7k"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p28ra"]
 size = Vector2(128, 128)
 
 [node name="block" type="StaticBody2D"]
+script = ExtResource("1_fkbx1")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_tuh7k")
